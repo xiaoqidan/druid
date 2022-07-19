@@ -774,6 +774,9 @@ public class DruidDataSource extends DruidAbstractDataSource implements DruidDat
         this.connectProperties = properties;
     }
 
+    /**
+     * 初始化入口
+     */
     public void init() throws SQLException {
         if (inited) {
             return;
@@ -810,11 +813,10 @@ public class DruidDataSource extends DruidAbstractDataSource implements DruidDat
                 this.jdbcUrl = this.jdbcUrl.trim();
                 initFromWrapDriverUrl();
             }
-
+            // 1.filter初始化
             for (Filter filter : filters) {
                 filter.init(this);
             }
-
             if (this.dbTypeName == null || this.dbTypeName.length() == 0) {
                 this.dbTypeName = JdbcUtils.getDbType(jdbcUrl, null);
             }
@@ -861,7 +863,7 @@ public class DruidDataSource extends DruidAbstractDataSource implements DruidDat
             }
 
             initFromSPIServiceLoader();
-
+            // 处理driver
             resolveDriver();
 
             initCheck();
@@ -883,9 +885,11 @@ public class DruidDataSource extends DruidAbstractDataSource implements DruidDat
                 dataSourceStat = new JdbcDataSourceStat(this.name, this.jdbcUrl, this.dbTypeName, this.connectProperties);
             }
             dataSourceStat.setResetStatEnable(this.resetStatEnable);
-
+            // 持有连接的数组
             connections = new DruidConnectionHolder[maxActive];
+            // 要清除的数组
             evictConnections = new DruidConnectionHolder[maxActive];
+            // 保活的连接
             keepAliveConnections = new DruidConnectionHolder[maxActive];
 
             SQLException connectError = null;
